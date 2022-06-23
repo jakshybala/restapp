@@ -1,16 +1,16 @@
 package grey.code.restapp.controller;
 
 import grey.code.restapp.dto.CompanyDtoRequest;
-import grey.code.restapp.dto.CompanyDtoResponse;
+import grey.code.restapp.dto.TeacherDtoRequest;
 import grey.code.restapp.model.Company;
-import grey.code.restapp.services.CompanyService;
+import grey.code.restapp.model.Teacher;
+import grey.code.restapp.services.TeacherService;
 import grey.code.restapp.util.erros.CompanyError;
 import grey.code.restapp.util.erros.CompanyNotCreatedException;
 import grey.code.restapp.util.erros.CompanyNotFoundExeption;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -23,42 +23,43 @@ grey.code.restapp.controller
 Tarih: 19.06.2022, Saat: 12:54, Author: Grey 
 */
 @RestController
-@RequestMapping("/company")
-public class CompanyController {
+@RequestMapping("/teacher")
+public class TeacherController {
 
-    private final CompanyService companyService;
+    private final TeacherService teacherService;
     private final ModelMapper modelMapper;
 
-    public CompanyController(CompanyService companyService, ModelMapper modelMapper) {
-        this.companyService = companyService;
+    public TeacherController(TeacherService teacherService, ModelMapper modelMapper) {
+        this.teacherService = teacherService;
         this.modelMapper = modelMapper;
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    //allcompany
+
+
+    //allc
     @GetMapping()
-    public List<Company> getAll() {
-        return companyService.showAll();
+    public List<Teacher> getAll() {
+        return teacherService.showAll();
 
     }
+
 
     //getByid
     @GetMapping("/{id}")
-    public Company getById (@PathVariable("id") int id) {
-        return companyService.getById(id);
+    public Teacher getById (@PathVariable("id") int id) {
+        return teacherService.getById(id);
 
     }
     @ExceptionHandler
     private ResponseEntity<CompanyError> handlerException(CompanyNotFoundExeption exeption) {
         CompanyError response = new CompanyError(
-                "Company with this id not founded", System.currentTimeMillis()
+                "Teacher with this id not founded", System.currentTimeMillis()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     //create
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<HttpStatus> save(@RequestBody @Valid CompanyDtoRequest newCompanyDto,
+    public ResponseEntity<HttpStatus> save(@RequestBody @Valid TeacherDtoRequest newTeacherDto,
                                            BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
@@ -70,31 +71,30 @@ public class CompanyController {
             throw new CompanyNotCreatedException(errorMessage.toString());
 
         }
-        companyService.saveCompany(convertToCompany(newCompanyDto));
+        teacherService.creteTeacher(convertToTeacher(newTeacherDto));
         return ResponseEntity.ok(HttpStatus.OK);
 
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     //update
     @PostMapping("/{id}/edit")
-    private ResponseEntity<HttpStatus> update(@PathVariable("id") int id, @RequestBody @Valid CompanyDtoRequest updateCompanyDto,
+    private ResponseEntity<HttpStatus> update(@PathVariable("id") int id, @RequestBody @Valid TeacherDtoRequest teacherDto,
                                               BindingResult bindingResult) {
-        companyService.updateCompany(id, convertToCompany(updateCompanyDto));
+        teacherService.updateTeacher(id, convertToTeacher(teacherDto));
         return ResponseEntity.ok(HttpStatus.OK);
 
     }
     //delete
     @DeleteMapping("/{id}")
     private ResponseEntity<HttpStatus> delete(@PathVariable("id") int id) {
-        companyService.deletCompany(id);
+        teacherService.deletById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
 
 
-    private Company convertToCompany(CompanyDtoRequest newCompanyDto) {
+    private Teacher convertToTeacher(TeacherDtoRequest newTeacherDto) {
 /*        ModelMapper modelMapper = new ModelMapper();*/
-        return modelMapper.map(newCompanyDto, Company.class);
+        return modelMapper.map(newTeacherDto, Teacher.class);
 //        Company company = new Company();
 //        company.setName(newCompanyDto.getName());
 //        company.setCountry(newCompanyDto.getCountry());

@@ -1,5 +1,6 @@
 package grey.code.restapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,14 +36,16 @@ public class Course {
     @Column(name = "duration")
     @Digits(fraction = 0, integer = 10, message ="Only digits!")
     private int duration;
+
+
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Company company;
-
+    @JsonIgnore
 //    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OneToOne(mappedBy = "course")
     private Teacher teacher;
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "courseList")
     private List<Group> groupList;
 

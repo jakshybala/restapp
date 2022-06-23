@@ -5,10 +5,13 @@ grey.crud.model
 Tarih: 30.05.2022, Saat: 18:01, Author: Grey 
 */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -29,11 +32,16 @@ public class Company {
     private String country;
 
     public Company() {
-
     }
-    //course
-//    @OneToMany(mappedBy = "company")
-//    private List<Course> courseList;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
+
+    @Column(name = "creater")
+    private String creater;
 
     public Company(String name, String country) {
         this.name = name;
@@ -65,13 +73,30 @@ public class Company {
         this.country = country;
     }
 
-//    public List<Course> getCourseList() {
-//        return courseList;
-//    }
-//
-//    public void setCourseList(List<Course> courseList) {
-//        this.courseList = courseList;
-//    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public String getCreater() {
+        return creater;
+    }
+
+    public void setCreater(String creater) {
+        this.creater = creater;
+    }
+
 
     @Override
     public String toString() {
@@ -82,7 +107,4 @@ public class Company {
                 '}';
     }
 
-//    public void setCourse(Course course) {
-//        this.courseList.add(course);
-//    }
 }

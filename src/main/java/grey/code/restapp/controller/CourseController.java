@@ -1,9 +1,8 @@
 package grey.code.restapp.controller;
 
-import grey.code.restapp.dto.CompanyDtoRequest;
-import grey.code.restapp.dto.CompanyDtoResponse;
-import grey.code.restapp.model.Company;
-import grey.code.restapp.services.CompanyService;
+import grey.code.restapp.dto.CourseDtoRequest;
+import grey.code.restapp.model.Course;
+import grey.code.restapp.services.CourseService;
 import grey.code.restapp.util.erros.CompanyError;
 import grey.code.restapp.util.erros.CompanyNotCreatedException;
 import grey.code.restapp.util.erros.CompanyNotFoundExeption;
@@ -16,35 +15,39 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
 grey.code.restapp.controller
 Tarih: 19.06.2022, Saat: 12:54, Author: Grey 
 */
+@PreAuthorize("hasAnyAuthority('ADMIN')")
 @RestController
-@RequestMapping("/company")
-public class CompanyController {
+@RequestMapping("/course")
+public class CourseController {
 
-    private final CompanyService companyService;
+    private final CourseService courseService;
     private final ModelMapper modelMapper;
 
-    public CompanyController(CompanyService companyService, ModelMapper modelMapper) {
-        this.companyService = companyService;
+    public CourseController(CourseService courseService, ModelMapper modelMapper) {
+        this.courseService = courseService;
         this.modelMapper = modelMapper;
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+
+
     //allcompany
     @GetMapping()
-    public List<Company> getAll() {
-        return companyService.showAll();
+    public List<Course> getAll() {
+        return courseService.showAll();
 
     }
+
 
     //getByid
     @GetMapping("/{id}")
-    public Company getById (@PathVariable("id") int id) {
-        return companyService.getById(id);
+    public Course getById (@PathVariable("id") int id) {
+        return courseService.getById(id);
 
     }
     @ExceptionHandler
@@ -56,13 +59,12 @@ public class CompanyController {
     }
 
     //create
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<HttpStatus> save(@RequestBody @Valid CompanyDtoRequest newCompanyDto,
-                                           BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
+    public ResponseEntity<HttpStatus> save(@RequestBody @Valid CourseDtoRequest newCourse,
+                                           BindingResult bindingResultCourse) {
+        if(bindingResultCourse.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
-            List<FieldError> fieldError = bindingResult.getFieldErrors();
+            List<FieldError> fieldError = bindingResultCourse.getFieldErrors();
             for (FieldError error : fieldError) {
                 errorMessage.append(error.getField()).append(" -- ").append(error.getDefaultMessage()).
                         append(";");
@@ -70,35 +72,29 @@ public class CompanyController {
             throw new CompanyNotCreatedException(errorMessage.toString());
 
         }
-        companyService.saveCompany(convertToCompany(newCompanyDto));
+        courseService.saveCourse(converterToCourse(newCourse));
         return ResponseEntity.ok(HttpStatus.OK);
 
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
     //update
     @PostMapping("/{id}/edit")
-    private ResponseEntity<HttpStatus> update(@PathVariable("id") int id, @RequestBody @Valid CompanyDtoRequest updateCompanyDto,
+    private ResponseEntity<HttpStatus> update(@PathVariable("id") int id, @RequestBody @Valid CourseDtoRequest updateCourseDto,
                                               BindingResult bindingResult) {
-        companyService.updateCompany(id, convertToCompany(updateCompanyDto));
+        courseService.updateCourse(id, converterToCourse(updateCourseDto));
         return ResponseEntity.ok(HttpStatus.OK);
 
     }
     //delete
     @DeleteMapping("/{id}")
     private ResponseEntity<HttpStatus> delete(@PathVariable("id") int id) {
-        companyService.deletCompany(id);
+        courseService.deleteCourse(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
 
-
-    private Company convertToCompany(CompanyDtoRequest newCompanyDto) {
-/*        ModelMapper modelMapper = new ModelMapper();*/
-        return modelMapper.map(newCompanyDto, Company.class);
-//        Company company = new Company();
-//        company.setName(newCompanyDto.getName());
-//        company.setCountry(newCompanyDto.getCountry());
-//        return company;
+    //convert by jackson to from CourseDto to Course
+    private Course converterToCourse(CourseDtoRequest newCourseDto) {
+        return modelMapper.map(newCourseDto, Course.class);
 
     }
 
